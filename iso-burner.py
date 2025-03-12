@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import kivy
+from kivy.app import App
+from kivy.core.window import Window
 import os
 import sys
 from glob import iglob
@@ -6,6 +9,7 @@ from subprocess import Popen, PIPE
 import time
 import signal
 from decimal import Decimal, localcontext, ROUND_DOWN
+Window.size = (720, 300)
 
 delim = " - "
 endOption = "x" + delim + "Exit program"
@@ -14,6 +18,9 @@ sureString = "Are you sure (Y/n) : "
 invalidString = "Invalid option entered, Please Enter a valid option\n"
 DEVICE = "/dev/null"
 yes = ['YES', 'y', 'Y', 'yes', '']
+class IsoBurnerApp(App):
+    def build(self):
+        pass
 
 def main():
     clearScreen()
@@ -128,4 +135,4 @@ def getUsb():
     return 'null'
 
 if __name__ == "__main__":
-    main
+    IsoBurnerApp().run()
