@@ -1,46 +1,46 @@
-from scrapy.spider import Spider
-from scrapy.selector import Selector
-from scrapy.http import Request
-from sitespider.items import genspiderItem
+import requests
+import scrapy
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
+import time
+import kivy
+from kivy.app import App
+from kivy.uix.gridlayout import GridLayout
 
-class MasterSpider(Spider):
-
-    def start_requests(self):
-        if hasattr(self,'parse_start'): # First page requiring a specific parser
-            fcallback = self.parse_start
-        else:
-            fcallback = self.parse
-        return [ Request(self.spd['start_url'],
-                     callback=fcallback,
-                     meta={'itemfields': {}}) ]
-
-    def parse(self, response):
-        sel = Selector(response)
-        lines = sel.xpath(self.spd['xlines'])
-        # ...
-        for line in lines:
-            item = genspiderItem(response.meta['itemfields'])               
-            # ...
-            # Get request_url of detailed page and scrap basic item info
-            # ... 
-            yield  Request(request_url,
-                   callback=self.parse_item,
-                   meta={'item':item, 'itemfields':response.meta['itemfields']})
-
-        for next_url in sel.xpath(self.spd['xnext_url']).extract():
-            if hasattr(self,'next_url_parser'): # Need to process the next page URL before?
-                yield self.next_url_parser(next_url, response)
-            else:
-                yield Request(
-                    request_url,
-                    callback=self.parse,
-                    meta=response.meta)
-
-    def parse_item(self, response):
-        sel = Selector(response)
-        item = response.meta['item']
-        for itemname, xitemname in self.spd['x_ondetailpage'].iteritems():
-            item[itemname] = "\n".join(sel.xpath(xitemname).extract())
-        return item
+#Define the Crawler Function:
+visited = set()
+        
+def crawl(url, base_url):
+    if url not in visited:
+        visited.add(url)
+        global response
+        response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        for link in soup.find_all('a'):
+            href = link.get('href')
+            #create logfile for saving results in a file
+            logfile_name = "f spidering_logs.txt"
+            #now open logfile for writing
+            with open(logfile_name, 'w') as logfile:
+                if href:
+                    full_url = urljoin(base_url, href)
+                    print(full_url)
+                    time.sleep(1) # Delay to avoid server overload/crash
+                    crawl(full_url, base_url)
+                    full_url_decode = full_url.decode() #Decode full url response to logfile
+                    methods = ["Get", "Post"]
+                    for i in methods:
+                        if i in full_url_decode:
+                            return full_url_decode
+                            base_url_decode = base_url.decode() #Decode base url response
+                            for k in methods:
+                                if k in base_url_decode:
+                                    return base_url_decode
 
 
+if __name__ == "__main__":
+#Start crawling URL:
+    print("Ezase-Ntumbane")
+    start_url = input("[*] Please enter the target-url: ")
+    crawl(start_url, start_url)
