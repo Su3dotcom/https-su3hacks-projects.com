@@ -15,7 +15,7 @@ class MyWidget(BoxLayout):
     # Set up Google Chrome driver
     driver = webdriver.Chrome()
     # Manually change the URL of the webpage where the video you want to download is located
-    url = 'https://www.netflix.com/video/1529-1-1.html'
+    url = 'https://www.netflix.com/video'
 
 # open the Web page
 driver.get(url)
